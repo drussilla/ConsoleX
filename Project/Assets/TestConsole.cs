@@ -11,9 +11,6 @@ public class TestConsole : MonoBehaviour
     {
         ConsoleController.Console.RegisterCommand("test", strings => {Debug.Log("test");});
         ConsoleController.Console.RegisterCommand("test2", strings => { Debug.Log("test2"); });
-
-        Debug.Log(Time.frameCount);
-	    StartCoroutine(this.DoActionAfterFrames(() => Debug.Log(Time.frameCount), 5));
     }
 
     // Update is called once per frame
