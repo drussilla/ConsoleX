@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections;
+using System.Threading;
+using ConsoleX.Helpers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -20,8 +23,8 @@ namespace ConsoleX.UI
 
         public void MoveCaretToEnd()
         {
-            m_CaretPosition = text.Length;
-            m_CaretSelectPosition = text.Length;
+            caretPosition = caretSelectPos = Mathf.Max(caretPosition, caretSelectPos);
+            UpdateLabel();
         }
 
         public override void OnUpdateSelected(BaseEventData eventData)
@@ -99,6 +102,30 @@ namespace ConsoleX.UI
             }
 
             return false;
+        }
+
+        private int enableInFrames = -1;
+
+        public void DisableInputForFrames(int frameCount)
+        {
+            interactable = false;
+            enableInFrames = frameCount;
+        }
+
+        protected override void LateUpdate()
+        {
+            base.LateUpdate();
+
+            if (enableInFrames >= 0)
+            {
+                if (enableInFrames == 0)
+                {
+                    interactable = true;
+                    ActivateInputField();
+                    StartCoroutine(this.DoActionAfterFrames(MoveCaretToEnd, 2));
+                }
+                enableInFrames--;
+            }
         }
     }
 }

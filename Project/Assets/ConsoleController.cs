@@ -35,8 +35,8 @@ namespace ConsoleX
         {
             if (isPromptNeedUpdate)
             {
-                commandPrompt.text = newValueForPrompt;
                 EventSystem.current.SetSelectedGameObject(commandPrompt.gameObject);
+                commandPrompt.text = newValueForPrompt;
                 commandPrompt.MoveCaretToEnd();
                 isPromptNeedUpdate = false;
             }
@@ -98,6 +98,7 @@ namespace ConsoleX
         public void Show()
         {
             consolePanel.SetActive(true);
+            commandPrompt.DisableInputForFrames(1);
             EventSystem.current.SetSelectedGameObject(commandPrompt.gameObject);
             IsVisible = true;
         }
@@ -105,7 +106,6 @@ namespace ConsoleX
         public void Hide()
         {
             consolePanel.SetActive(false);
-            EventSystem.current.SetSelectedGameObject(output.gameObject);
             IsVisible = false;
         }
 
