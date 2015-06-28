@@ -15,6 +15,12 @@ namespace ConsoleX.UI
         /// </summary>
         private Event m_ProcessingEvent = new Event();
 
+        public void MoveCaretToEnd()
+        {
+            caretPositionInternal = caretSelectPositionInternal = Mathf.Max(caretPositionInternal, caretSelectPositionInternal);
+            UpdateLabel();
+        }
+
         public override void OnUpdateSelected(BaseEventData eventData)
         {
             if (!isFocused)

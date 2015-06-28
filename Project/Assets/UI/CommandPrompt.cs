@@ -23,7 +23,7 @@ namespace ConsoleX.UI
 
         public void MoveCaretToEnd()
         {
-            caretPosition = caretSelectPos = Mathf.Max(caretPosition, caretSelectPos);
+            caretPositionInternal = caretSelectPositionInternal = Mathf.Max(caretPositionInternal, caretSelectPositionInternal);
             UpdateLabel();
         }
 

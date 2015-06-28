@@ -11,9 +11,9 @@ namespace ConsoleX
         [SerializeField]
         private GameObject consolePanel;
         [SerializeField]
-        public ReadOnlyInputField output;
+        private ReadOnlyInputField output;
         [SerializeField]
-        public CommandPrompt commandPrompt;
+        private CommandPrompt commandPrompt;
         [SerializeField]
         private Console console;
 
@@ -81,11 +81,13 @@ namespace ConsoleX
             else
             {
                 output.text += string.Join("\n", completeItems);
+                output.MoveCaretToEnd();
             }
         }
 
         private string newValueForPrompt;
         private bool isPromptNeedUpdate = false;
+        
         private void UpdateCommandPrompt(string value)
         {
             EventSystem.current.SetSelectedGameObject(output.gameObject);
