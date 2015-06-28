@@ -16,6 +16,7 @@ namespace UnityTest
         private readonly GUIContent m_GUICreateNewTest = new GUIContent("Create", "Create new test");
         private readonly GUIContent m_GUIRunSelectedTests = new GUIContent("Run Selected", "Run selected test(s)");
         private readonly GUIContent m_GUIRunAllTests = new GUIContent("Run All", "Run all tests");
+        private readonly GUIContent m_GUIAddGoUderTest = new GUIContent("Add GOs under test", "Add new GameObject under selected test");
         private readonly GUIContent m_GUIBlockUI = new GUIContent("Block UI when running", "Block UI when running tests");
         private readonly GUIContent m_GUIPauseOnFailure = new GUIContent("Pause on test failure");
         #endregion
@@ -93,7 +94,7 @@ namespace UnityTest
 
         public void OnEnable()
         {
-			titleContent = new GUIContent("Integration Tests");
+            title = "Integration Tests";
             s_Instance = this;
 
             m_Settings = ProjectSettingsBase.Load<IntegrationTestsRunnerSettings>();
@@ -135,6 +136,19 @@ namespace UnityTest
 
             // create a test runner if it doesn't exist
             TestRunner.GetTestRunner();
+
+            if (s_Instance.m_Settings.addNewGameObjectUnderSelectedTest
+                && s_Instance.m_SelectedLine != null
+                && Selection.activeGameObject != null)
+            {
+                var go = Selection.activeGameObject;
+                if (go.transform.parent == null
+                    && go.GetComponent<TestComponent>() == null
+                    && go.GetComponent<TestRunner>() == null)
+                {
+                    go.transform.parent = s_Instance.m_SelectedLine.transform;
+                }
+            }
 
             // make tests are not places under a go that is not a test itself
             foreach (var test in TestComponent.FindAllTestsOnScene())
@@ -316,6 +330,7 @@ namespace UnityTest
 
         public void OnGUI()
         {
+#if !UNITY_4_0 && !UNITY_4_0_1 && !UNITY_4_1 && !UNITY_4_2
             if (BuildPipeline.isBuildingPlayer)
             {
                 m_IsBuilding = true;
@@ -325,7 +340,7 @@ namespace UnityTest
                 m_IsBuilding = false;
                 Repaint();
             }
-
+#endif  // if !UNITY_4_0 && !UNITY_4_0_1 && !UNITY_4_1 && !UNITY_4_2
             PrintHeadPanel();
 
             EditorGUILayout.BeginVertical(Styles.testList);
@@ -377,6 +392,7 @@ namespace UnityTest
         
         public void AddItemsToMenu(GenericMenu menu)
         {
+            menu.AddItem(m_GUIAddGoUderTest, m_Settings.addNewGameObjectUnderSelectedTest, m_Settings.ToggleAddNewGameObjectUnderSelectedTest);
             menu.AddItem(m_GUIBlockUI, m_Settings.blockUIWhenRunning, m_Settings.ToggleBlockUIWhenRunning);
             menu.AddItem(m_GUIPauseOnFailure, m_Settings.pauseOnTestFailure, m_Settings.TogglePauseOnTestFailure);
         }

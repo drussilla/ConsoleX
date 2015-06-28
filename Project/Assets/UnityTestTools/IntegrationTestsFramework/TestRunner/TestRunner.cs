@@ -83,7 +83,9 @@ namespace UnityTest
 
         public void InitRunner(List<TestComponent> tests, List<string> dynamicTestsToRun)
         {
-            Application.logMessageReceived += LogHandler;
+            m_CurrentlyRegisteredLogCallback = GetLogCallbackField();
+            m_LogCallback = LogHandler;
+            Application.RegisterLogCallback(m_LogCallback);
 
             // Init dynamic tests
             foreach (var typeName in dynamicTestsToRun)
@@ -138,6 +140,7 @@ namespace UnityTest
                 m_ReadyToRun = false;
                 StartCoroutine("StateMachine");
             }
+            LogCallbackStillRegistered();
         }
 
         public void OnDestroy()
@@ -154,7 +157,7 @@ namespace UnityTest
                 var remainingTests = m_TestsProvider.GetRemainingTests();
                 TestRunnerCallback.TestRunInterrupted(remainingTests.ToList());
             }
-            Application.logMessageReceived -= LogHandler;
+            Application.RegisterLogCallback(null);
         }
 
         private void LogHandler(string condition, string stacktrace, LogType type)
@@ -400,6 +403,35 @@ namespace UnityTest
 #endif  // if !UNITY_METRO
         }
 
+        #endregion
+
+        #region LogCallback check
+        private Application.LogCallback m_LogCallback;
+        private FieldInfo m_CurrentlyRegisteredLogCallback;
+
+        public void LogCallbackStillRegistered()
+        {
+            if (Application.platform == RuntimePlatform.OSXWebPlayer
+                || Application.platform == RuntimePlatform.WindowsWebPlayer)
+                return;
+            if (m_CurrentlyRegisteredLogCallback == null) return;
+            var v = (Application.LogCallback)m_CurrentlyRegisteredLogCallback.GetValue(null);
+            if (v == m_LogCallback) return;
+            Debug.LogError("Log callback got changed. This may be caused by other tools using RegisterLogCallback.");
+            Application.RegisterLogCallback(m_LogCallback);
+        }
+
+        private FieldInfo GetLogCallbackField()
+        {
+#if !UNITY_METRO
+            var type = typeof(Application);
+            var f = type.GetFields(BindingFlags.Static | BindingFlags.NonPublic).Where(p => p.Name == "s_LogCallback");
+            if (f.Count() != 1) return null;
+            return f.Single();
+#else
+            return null;
+#endif
+        }
         #endregion
 
         enum TestState

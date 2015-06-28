@@ -131,7 +131,12 @@ namespace UnityTest
         {
             foreach (var t in testsToDelete)
             {
+#if UNITY_4_0 || UNITY_4_0_1 || UNITY_4_1 || UNITY_4_2
+                Undo.RegisterSceneUndo("Destroy Tests");
+                GameObject.DestroyImmediate(t);
+#else
                 Undo.DestroyObjectImmediate(t);
+#endif
             }
         }
 
